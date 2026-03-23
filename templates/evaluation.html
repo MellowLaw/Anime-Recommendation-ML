@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Model Visualizations | AnimeMatch</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <style>
+        body { font-family: 'Outfit', sans-serif; background-color: #050505; color: white; overflow-x: hidden; }
+        .glass-panel { background: rgba(10, 10, 10, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
+    </style>
+</head>
+<body>
+
+<div class="fixed inset-0 z-0 overflow-hidden">
+    <div id="bg-container" class="absolute inset-[-100px] blur-[60px] scale-125 opacity-40 bg-purple-900 border border-black rounded-full" style="background-image: linear-gradient(135deg, #1e3a8a, #581c87);"></div>
+    <div class="absolute inset-0 bg-gradient-to-tr from-black via-black/90 to-cyan-900/20"></div>
+</div>
+
+<header class="relative z-50 flex justify-between items-center px-12 py-6">
+    <div class="flex items-center gap-12">
+        <a href="/" class="text-2xl font-black tracking-widest text-cyan-400 drop-shadow-md">ANIME<span class="text-white">MATCH</span></a>
+        <nav class="hidden md:flex gap-8 text-sm font-bold text-gray-300 uppercase tracking-widest">
+            <a href="/" class="hover:text-cyan-400 transition-colors drop-shadow-md">Home</a>
+            <a href="/evaluation" class="text-cyan-400 border-b-2 border-cyan-400 pb-1 transition-colors drop-shadow-lg">Model Metrics</a>
+        </nav>
+    </div>
+</header>
+
+<main class="relative z-10 flex flex-col items-center justify-center min-h-[80vh] px-8 lg:px-24 py-12">
+    <div class="w-full max-w-6xl">
+        <div class="mb-10 text-center">
+            <h1 class="text-4xl lg:text-7xl font-black uppercase tracking-tighter mb-4 text-white drop-shadow-2xl">
+                Model <span class="text-cyan-400">Visualizations</span>
+            </h1>
+            <p class="text-gray-400 uppercase tracking-widest text-sm font-bold">Performance Analytics & Educational Metrics</p>
+        </div>
+        
+        <div class="glass-panel p-10 lg:p-14 rounded-3xl shadow-2xl border border-white/20 w-full overflow-hidden">
+            
+            <h3 class="text-3xl font-black mb-6 flex items-center gap-3 text-cyan-400">
+                <span class="material-symbols-outlined text-3xl">analytics</span> Evaluation Matrix
+            </h3>
+            
+            <div class="overflow-x-auto w-full mb-12 border border-white/10 rounded-2xl bg-black/40">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b-2 border-white/10 text-gray-300 text-sm tracking-widest uppercase bg-black/60">
+                            <th class="py-5 px-6 font-black">Algorithm Model</th>
+                            <th class="py-5 px-6 font-black">Infrastructure</th>
+                            <th class="py-5 px-6 font-black">Query Latency</th>
+                            <th class="py-5 px-6 font-black text-right">Verdict</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in metrics %}
+                        <tr class="border-b border-white/5 hover:bg-white/5 transition-colors group">
+                            <td class="py-4 px-6 font-black text-lg text-white group-hover:text-cyan-400 transition-colors">{{ item.model }}</td>
+                            <td class="py-4 px-6 text-gray-300 font-medium">{{ item.structure }}</td>
+                            <td class="py-4 px-6 font-mono font-bold text-gray-300">{{ item.speed }}s</td>
+                            <td class="py-4 px-6 text-right">
+                                {% if item.result == 'WINNER' %}
+                                <span class="bg-gradient-to-r from-cyan-500 to-blue-500 text-black px-4 py-2 font-black text-xs uppercase tracking-widest rounded shadow-[0_0_15px_rgba(6,182,212,0.4)]">
+                                    BEST PERFORMING (<script>document.write(String.fromCharCode(10004))</script>)
+                                </span>
+                                {% else %}
+                                <span class="bg-red-500/20 text-red-400 border border-red-500/30 px-4 py-2 font-black text-xs uppercase tracking-widest rounded">
+                                    {{ item.result }}
+                                </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-10 text-white">
+                <div class="bg-black/50 border border-white/10 p-8 rounded-3xl flex flex-col items-center hover:border-cyan-500/40 transition-colors">
+                    <h4 class="text-sm font-black uppercase tracking-widest text-cyan-400 mb-6 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">speed</span> Model Inference Speed
+                    </h4>
+                    <div class="w-full max-w-sm flex-1 flex items-center justify-center min-h-[250px]">
+                        <canvas id="latencyChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="bg-black/50 border border-white/10 p-8 rounded-3xl flex flex-col items-center hover:border-purple-500/40 transition-colors">
+                    <h4 class="text-sm font-black uppercase tracking-widest text-purple-400 mb-6 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">balance</span> Class Balancing (Under Sampling)
+                    </h4>
+                    <div class="w-full max-w-sm flex-1 flex items-center justify-center min-h-[250px]">
+                        <canvas id="balanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Educational Comparison Section -->
+            <div class="mb-12 bg-black/40 border-2 border-dashed border-white/20 p-8 rounded-3xl relative">
+                <h4 class="text-xl font-black text-white uppercase tracking-wider mb-8 flex items-center gap-3">
+                    <span class="material-symbols-outlined text-purple-400 text-3xl">school</span> 
+                    Machine Learning Theory: KNN vs Cosine Similarity
+                </h4>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Cosine Factor -->
+                    <div class="bg-gradient-to-br from-red-900/20 to-black border border-red-500/30 p-8 rounded-2xl hover:border-red-500/60 transition-colors relative overflow-hidden">
+                        <span class="absolute right-0 top-0 text-[8rem] material-symbols-outlined opacity-[0.02] -mr-10 -mt-10">functions</span>
+                        <h5 class="font-black text-red-400 tracking-widest uppercase mb-6 flex flex-col gap-2">
+                            <span>Cosine Similarity</span>
+                            <span class="text-[0.65rem] w-max bg-red-500/10 px-3 py-1 border border-red-500/20 rounded shadow-lg text-red-200">Brute-Force Vector Math</span>
+                        </h5>
+                        <ul class="space-y-4 text-sm text-gray-300 relative z-10 leading-relaxed">
+                            <li><strong class="text-white drop-shadow-md font-bold">Mathematical Metric:</strong> Measures the cosine of the angle between two TF-IDF vectors. A score of 1.0 means an exactly identical textual intersection.</li>
+                            <li><strong class="text-white drop-shadow-md font-bold">Time Complexity (Latency):</strong> <span class="font-mono text-red-300 font-bold bg-red-900/30 px-1.5 py-0.5 rounded ml-1">O(N × D)</span>. To find a match, it is forced to perform a dense matrix multiplication of the user's input against <strong>every single historical record</strong> sequentially.</li>
+                            <li><strong class="text-white drop-shadow-md font-bold">Industry Verdict:</strong> Highly prone to latency bottlenecks scaling up to production loads. Excellent for baselines, but fails to skip irrelevant data intelligently.</li>
+                        </ul>
+                    </div>
+
+                    <!-- KNN Factor -->
+                    <div class="bg-gradient-to-br from-cyan-900/20 to-black border border-cyan-500/30 p-8 rounded-2xl hover:border-cyan-500/60 transition-colors relative overflow-hidden">
+                        <span class="absolute right-0 top-0 text-[8rem] material-symbols-outlined opacity-[0.02] -mr-10 -mt-10">hub</span>
+                        <h5 class="font-black text-cyan-400 tracking-widest uppercase mb-6 flex flex-col gap-2">
+                            <span>K-Nearest Neighbors (KNN)</span>
+                            <span class="text-[0.65rem] w-max bg-cyan-500/10 px-3 py-1 border border-cyan-500/20 rounded shadow-lg text-cyan-100">Optimized Spatial Indexing</span>
+                        </h5>
+                        <ul class="space-y-4 text-sm text-gray-300 relative z-10 leading-relaxed">
+                            <li><strong class="text-white drop-shadow-md font-bold">Underlying Metric:</strong> We explicitly configured the KNN algorithm to utilize the <em>exact same</em> Cosine distance algorithm. It mathematically guarantees the identical Top 5 matches, but achieves it fundamentally faster.</li>
+                            <li><strong class="text-white drop-shadow-md font-bold">Time/Space Complexity:</strong> <span class="font-mono text-cyan-300 font-bold bg-cyan-900/30 px-1.5 py-0.5 rounded ml-1">O(D log N)</span>. Because the algorithm trains a topological map (Spatial Search Tree) mapped to persistent memory, it can algorithmically "skip" millions of irrelevant branch nodes entirely!</li>
+                            <li><strong class="text-white drop-shadow-md font-bold">Industry Verdict:</strong> The industry standard for robust recommender engines requiring lightning-fast, concurrent API inference processing.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conclusion -->
+            <div class="bg-cyan-500/10 border border-cyan-500/30 p-8 rounded-2xl relative overflow-hidden">
+                <span class="absolute right-0 bottom-0 text-[10rem] material-symbols-outlined opacity-[0.03] rotate-12 -mb-10 -mr-10">emoji_events</span>
+                <h4 class="text-xl font-black text-white uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-cyan-400 text-3xl">workspace_premium</span> 
+                    Final Architecture Selected: K-Nearest Neighbors
+                </h4>
+                <p class="text-gray-300 text-lg leading-relaxed mt-2 relative z-10 w-4/5">
+                    Based on these theoretical metrics and the heavily tracked retrieval benchmarks plotted above, <strong class="text-white text-cyan-200">K-Nearest Neighbors (KNN)</strong> was officially deployed as our backend prediction engine for AnimeMatch!
+                </p>
+            </div>
+            
+        </div>
+    </div>
+</main>
+
+<script>
+    const rawMetrics = {{ metrics | tojson | safe }};
+    const rawDist = {{ dist | tojson | safe }};
+
+    Chart.defaults.color = 'rgba(255, 255, 255, 0.7)';
+    Chart.defaults.font.family = "'Outfit', sans-serif";
+
+    const ctxLatency = document.getElementById('latencyChart').getContext('2d');
+    new Chart(ctxLatency, {
+        type: 'bar',
+        data: {
+            labels: rawMetrics.map(m => m.model),
+            datasets: [{
+                label: 'Prediction Latency (Seconds)',
+                data: rawMetrics.map(m => m.speed),
+                backgroundColor: [
+                    'rgba(239, 68, 68, 0.4)',
+                    'rgba(6, 182, 212, 0.8)' 
+                ],
+                borderColor: [
+                    'rgba(239, 68, 68, 1)',
+                    'rgba(6, 182, 212, 1)'
+                ],
+                borderWidth: 2,
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: { callbacks: { label: (ctx) => `${ctx.raw} seconds` } }
+            },
+            scales: {
+                y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    const ctxBalance = document.getElementById('balanceChart').getContext('2d');
+    new Chart(ctxBalance, {
+        type: 'doughnut',
+        data: {
+            labels: ['Mainstream Anime', 'Balanced Niche', 'Trimmed Niche Data'],
+            datasets: [{
+                data: [rawDist.before.Mainstream, rawDist.after.Niche, rawDist.before.Niche - rawDist.after.Niche],
+                backgroundColor: [
+                    'rgba(6, 182, 212, 0.8)',
+                    'rgba(168, 85, 247, 0.8)',
+                    'rgba(255, 255, 255, 0.1)'
+                ],
+                borderColor: 'rgba(0, 0, 0, 0.4)',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '65%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: 'rgba(255, 255, 255, 0.9)', font: { size: 11, family: "'Outfit', sans-serif", weight: 'bold' }, padding: 15 }
+                }
+            }
+        }
+    });
+</script>
+</body>
+</html>

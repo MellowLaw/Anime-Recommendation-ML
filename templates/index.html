@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>AnimeMatch | Discover</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <style>
+        body { font-family: 'Outfit', sans-serif; background-color: #050505; color: white; overflow-x: hidden; }
+        .glass-panel { background: rgba(10, 10, 10, 0.4); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.05); }
+        .hero-bg { transition: background-image 1s ease-in-out; background-size: cover; background-position: center; }
+        .fade-transition { transition: opacity 0.5s ease-in-out, transform 0.5s ease; }
+    </style>
+</head>
+<body>
+
+<script>
+    const featuredAnime = {{ featured_anime | tojson | safe }};
+    let currentIndex = 0;
+</script>
+
+<!-- Soft Ambient Blurred Background -->
+<div class="fixed inset-0 z-0 overflow-hidden">
+    <div id="bg-container" class="absolute inset-[-100px] hero-bg blur-[50px] scale-125 opacity-40" style="background-image: url('{{ featured_anime[0].image_url }}')"></div>
+    <div class="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-black/60"></div>
+</div>
+
+<header class="relative z-50 flex justify-between items-center px-12 py-6">
+    <div class="flex items-center gap-12">
+        <a href="/" class="text-2xl font-black tracking-widest text-cyan-400 drop-shadow-md">ANIME<span class="text-white">MATCH</span></a>
+        <nav class="hidden md:flex gap-8 text-sm font-bold text-gray-300 uppercase tracking-widest">
+            <a href="/" class="text-cyan-400 border-b-2 border-cyan-400 pb-1 transition-colors drop-shadow-lg">Home</a>
+            <a href="/evaluation" class="hover:text-cyan-400 transition-colors drop-shadow-md">Model Metrics</a>
+        </nav>
+    </div>
+</header>
+
+<main class="relative z-10 flex flex-col justify-center min-h-[85vh] px-12 lg:px-24">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 w-full max-w-7xl mx-auto items-center">
+        <!-- Left content: Info & Crisp Image -->
+        <div id="anime-info" class="lg:col-span-7 flex flex-col md:flex-row gap-8 items-center md:items-start fade-transition opacity-100 translate-y-0">
+            <!-- Crisp Poster -->
+            <div class="hidden md:block w-48 shrink-0 rounded-xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.8)] border border-white/10 group">
+                <img id="anime-poster" src="{{ featured_anime[0].image_url }}" class="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-500" />
+            </div>
+            
+            <div class="flex flex-col items-start pt-2">
+                <span class="text-cyan-400 font-bold tracking-widest text-xs uppercase mb-3 flex items-center gap-2 drop-shadow-lg">
+                    <span class="material-symbols-outlined text-sm">trending_up</span> Trending Masterpiece
+                </span>
+                <h2 id="anime-title" class="text-4xl lg:text-5xl font-black uppercase tracking-tighter leading-tight mb-4 text-white line-clamp-3 drop-shadow-xl" title="{{ featured_anime[0].title }}">
+                    {{ featured_anime[0].title }}
+                </h2>
+                <div class="flex items-center gap-4 mb-4 drop-shadow-md">
+                    <div class="flex text-cyan-400">
+                        <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star_half</span>
+                    </div>
+                    <span id="anime-score" class="font-bold text-sm text-white">{{ featured_anime[0].score }} / 10</span>
+                </div>
+                <p id="anime-synopsis" class="text-gray-300 text-sm leading-relaxed mb-6 max-w-md line-clamp-4 drop-shadow-lg">
+                    {{ featured_anime[0].synopsis }}
+                </p>
+            </div>
+        </div>
+
+        <!-- Right content: Search Form -->
+        <div class="lg:col-span-5 glass-panel p-8 lg:p-10 rounded-2xl shadow-2xl border border-white/20 w-full ml-auto">
+            <h3 class="text-2xl font-black mb-2 text-white drop-shadow-md">Find Your Obsession</h3>
+            <p class="text-gray-400 text-sm mb-6">Describe a plot in natural language and let our AI Matchmaker pinpoint the perfect anime.</p>
+            
+            <form action="/predict" method="POST" class="flex flex-col gap-4">
+                <div class="relative">
+                    <span class="absolute left-4 top-4 material-symbols-outlined text-gray-400">menu_book</span>
+                    <textarea 
+                        name="description" 
+                        class="w-full bg-black/60 border border-gray-600 text-white rounded-xl pl-12 pr-4 py-4 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all font-medium resize-none h-32 backdrop-blur-md" 
+                        placeholder="e.g. A high-schooler who discovers a magical notebook..."
+                        required></textarea>
+                </div>
+                {% if error %}
+                    <div class="text-red-400 text-xs font-bold bg-red-500/10 p-3 rounded border border-red-500/20">
+                        {{ error }}
+                    </div>
+                {% endif %}
+                <button type="submit" class="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-black font-black text-sm py-4 rounded-xl shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all hover:scale-[1.02] flex items-center justify-center gap-2 uppercase tracking-wide mt-2">
+                    <span class="material-symbols-outlined">auto_awesome</span> Predict Match
+                </button>
+            </form>
+        </div>
+    </div>
+</main>
+
+<script>
+    setInterval(() => {
+        if (!featuredAnime || featuredAnime.length === 0) return;
+        
+        currentIndex = (currentIndex + 1) % featuredAnime.length;
+        const nextAnime = featuredAnime[currentIndex];
+        
+        const infoDiv = document.getElementById('anime-info');
+        infoDiv.classList.remove('opacity-100');
+        infoDiv.classList.add('opacity-0', 'translate-y-4');
+        
+        setTimeout(() => {
+            document.getElementById('bg-container').style.backgroundImage = `url('${nextAnime.image_url}')`;
+            document.getElementById('anime-poster').src = nextAnime.image_url;
+            document.getElementById('anime-title').textContent = nextAnime.title;
+            document.getElementById('anime-title').title = nextAnime.title;
+            document.getElementById('anime-score').textContent = nextAnime.score + ' / 10';
+            document.getElementById('anime-synopsis').textContent = nextAnime.synopsis;
+            
+            infoDiv.classList.remove('opacity-0', 'translate-y-4');
+            infoDiv.classList.add('opacity-100', 'translate-y-0');
+        }, 500);
+        
+    }, 6000);
+</script>
+</body>
+</html>
