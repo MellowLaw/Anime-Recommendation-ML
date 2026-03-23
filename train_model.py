@@ -18,6 +18,8 @@ df = df[df['Synopsis'] != 'UNKNOWN']
 # Strictly remove anime with placeholder "No synopsis" text or extremely short descriptions
 df = df[~df['Synopsis'].str.contains("No synopsis", case=False, na=False)]
 df = df[df['Synopsis'].str.len() > 50]
+# Remove explicitly 18+ NSFW categories to adhere to strict guidelines
+df = df[~df['Genres'].str.contains("Hentai|Erotica", case=False, na=False)]
 
 # Criteria 1: Show class distribution before balancing
 # To frame our recommendation as a classification/balancing problem, 

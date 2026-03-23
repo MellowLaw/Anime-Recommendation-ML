@@ -1,10 +1,10 @@
 <div align="center">
-  <h1 align="center">🌌 AnimeMatch</h1>
+  <h1 align="center">🌌 AniMatch</h1>
   <strong>AI-Powered Cinematic Anime Recommender</strong>
 </div>
 <br/>
 
-AnimeMatch is a high-performance **Machine Learning Web Application** designed to recommend specific anime based entirely on natural language plot descriptions. It utilizes purely **Content-Based Filtering**, backed by semantic textual analysis (`TF-IDF Vectorization`) and optimized spatial mapping (`K-Nearest Neighbors`), to mathematically locate your perfect anime match instantly.
+AniMatch is a high-performance **Machine Learning Web Application** designed to recommend specific anime based entirely on natural language plot descriptions. It utilizes purely **Content-Based Filtering**, backed by semantic textual analysis (`TF-IDF Vectorization`) and optimized spatial mapping (`K-Nearest Neighbors`), to mathematically locate your perfect anime match instantly.
 
 Built specifically for an end-to-end Machine Learning academic project, the complex backend inference pipeline is deployed to an utterly breathtaking, cinematic frontend UI heavily inspired by premium anime streaming platforms.
 
@@ -31,8 +31,8 @@ Built specifically for an end-to-end Machine Learning academic project, the comp
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-username/AnimeMatch.git
-   cd AnimeMatch
+   git clone https://github.com/your-username/AniMatch.git
+   cd AniMatch
    ```
 
 2. **Install Required Extensions (Dependencies)**

@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Model Visualizations | AnimeMatch</title>
+    <title>Model Visualizations | AniMatch</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet"/>
@@ -22,7 +23,10 @@
 
 <header class="relative z-50 flex justify-between items-center px-12 py-6">
     <div class="flex items-center gap-12">
-        <a href="/" class="text-2xl font-black tracking-widest text-cyan-400 drop-shadow-md">ANIME<span class="text-white">MATCH</span></a>
+        <a href="/" class="flex items-center gap-3 group">
+            <img src="{{ url_for('static', filename='logo.png') }}" class="h-8 md:h-10 w-auto group-hover:scale-110 transition-transform duration-300 drop-shadow-[0_0_15px_rgba(6,182,212,0.8)]" alt="AniMatch Logo">
+            <span class="text-2xl font-black tracking-widest text-cyan-400 drop-shadow-md hidden sm:block">ANI<span class="text-white">MATCH</span></span>
+        </a>
         <nav class="hidden md:flex gap-8 text-sm font-bold text-gray-300 uppercase tracking-widest">
             <a href="/" class="hover:text-cyan-400 transition-colors drop-shadow-md">Home</a>
             <a href="/evaluation" class="text-cyan-400 border-b-2 border-cyan-400 pb-1 transition-colors drop-shadow-lg">Model Metrics</a>
@@ -144,7 +148,7 @@
                     Final Architecture Selected: K-Nearest Neighbors
                 </h4>
                 <p class="text-gray-300 text-lg leading-relaxed mt-2 relative z-10 w-4/5">
-                    Based on these theoretical metrics and the heavily tracked retrieval benchmarks plotted above, <strong class="text-white text-cyan-200">K-Nearest Neighbors (KNN)</strong> was officially deployed as our backend prediction engine for AnimeMatch!
+                    Based on these theoretical metrics and the heavily tracked retrieval benchmarks plotted above, <strong class="text-white text-cyan-200">K-Nearest Neighbors (KNN)</strong> was officially deployed as our backend prediction engine for AniMatch!
                 </p>
             </div>
             
