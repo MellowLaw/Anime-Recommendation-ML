@@ -35,10 +35,19 @@ Built specifically for an end-to-end Machine Learning academic project, the comp
    cd AniMatch
    ```
 
-2. **Install Required Extensions (Dependencies)**
-   Ensure you have Python 3 installed. Then, run the following in your terminal to install the Machine Learning and Flask libraries:
+2. **Set up Virtual Environment (Recommended)**
+   To keep your global Python installation clean, create a virtual environment first:
    ```bash
-   pip install pandas scikit-learn flask joblib
+   python -m venv venv
+   ```
+   **Activate it:**
+   - **Windows:** `venv\Scripts\activate`
+   - **macOS/Linux:** `source venv/bin/activate`
+
+3. **Install Required Dependencies**
+   Once your environment is active, install all necessary libraries using the `requirements.txt` file:
+   ```bash
+   pip install -r requirements.txt
    ```
 
 3. **Train the AI Models (Mandatory First Step)**

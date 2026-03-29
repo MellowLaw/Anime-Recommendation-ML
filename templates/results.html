@@ -1,173 +1,226 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>AI Matches | AniMatch</title>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
     <style>
-        body { font-family: 'Outfit', sans-serif; background-color: #050505; color: white; overflow: hidden; margin: 0; padding: 0;}
-        .glass-panel { background: rgba(10, 10, 10, 0.4); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.05); }
-        .hero-bg { transition: background-image 0.8s cubic-bezier(0.4, 0, 0.2, 1); background-size: cover; background-position: center; }
-        .fade-transition { transition: opacity 0.6s ease, transform 0.6s ease; }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #050505;
+            color: white;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        .glass-panel {
+            background: rgba(10, 10, 10, 0.4);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .hero-bg {
+            transition: background-image 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            background-size: cover;
+            background-position: center;
+        }
+
+        .fade-transition {
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
     </style>
 </head>
+
 <body>
 
-<script>
-    const matches = {{ recommendations | tojson | safe }};
-    let currentMatchIndex = 0;
-    const isFallback = {{ 'true' if no_exact_match else 'false' }};
-</script>
+    <script>
+        const matches = {{ recommendations | tojson | safe }};
+        let currentMatchIndex = 0;
+        const isFallback = {{ 'true' if no_exact_match else 'false' }};
+    </script>
 
-<!-- Soft Ambient Blurred Background -->
-<div class="absolute inset-0 z-0 overflow-hidden">
-    <div id="bg-container" class="absolute inset-[-100px] hero-bg blur-[60px] scale-125 opacity-50" style="background-image: url('{{ recommendations[0].image_url }}')"></div>
-    <div class="absolute inset-0 bg-gradient-to-r from-black/95 via-black/80 to-transparent"></div>
-</div>
-
-<header class="absolute top-0 w-full z-50 flex justify-between items-center px-8 lg:px-12 py-6">
-    <div class="flex items-center gap-12">
-        <a href="/" class="flex items-center gap-3 group">
-            <img src="{{ url_for('static', filename='logo.png') }}" class="h-8 md:h-10 w-auto group-hover:scale-110 transition-transform duration-300 drop-shadow-[0_0_15px_rgba(6,182,212,0.8)]" alt="AniMatch Logo">
-            <span class="text-2xl font-black tracking-widest text-cyan-400 drop-shadow-md hidden sm:block cursor-pointer group-hover:text-white transition-colors">ANI<span class="text-white">MATCH</span></span>
-        </a>
-        <nav class="hidden md:flex gap-8 text-sm font-bold text-gray-300 uppercase tracking-widest">
-            <a href="/" class="hover:text-cyan-400 transition-colors drop-shadow-md">Home</a>
-            <a href="/evaluation" class="hover:text-cyan-400 transition-colors drop-shadow-md">Model Metrics</a>
-        </nav>
+    <!-- Soft Ambient Blurred Background -->
+    <div class="absolute inset-0 z-0 overflow-hidden">
+        <div id="bg-container" class="absolute inset-[-100px] hero-bg blur-[60px] scale-125 opacity-50"
+            style="background-image: url('{{ recommendations[0].image_url }}')"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-black/95 via-black/80 to-transparent"></div>
     </div>
-    <div class="flex items-center gap-4">
-        {% if no_exact_match %}
-        <span class="text-red-400 font-bold text-xs uppercase bg-red-500/20 px-4 py-2 rounded-full border border-red-500/30 flex items-center gap-2 drop-shadow-md">
-            <span class="material-symbols-outlined text-sm">warning</span> Prediction Anomaly
-        </span>
-        {% else %}
-        <span class="text-green-400 font-bold text-xs uppercase bg-green-500/20 px-4 py-2 rounded-full border border-green-500/30 flex items-center gap-2 drop-shadow-md">
-            <span class="material-symbols-outlined text-sm">check_circle</span> Prediction Passed
-        </span>
-        {% endif %}
-        <a href="/" class="text-sm font-bold bg-white/10 hover:bg-white/20 px-6 py-2 rounded-full transition-colors flex items-center gap-2 drop-shadow-md">
-            <span class="material-symbols-outlined text-sm">restart_alt</span> New Search
-        </a>
-    </div>
-</header>
 
-<main class="absolute inset-0 z-10 flex items-center justify-center px-12 lg:px-24">
-    <div id="content-container" class="w-full flex gap-12 items-center justify-between fade-transition opacity-100 translate-y-0">
-        <!-- Left Text Content -->
-        <div class="max-w-3xl pt-10">
-            <!-- Badges -->
-            <div class="flex flex-wrap items-center gap-3 mb-6">
-                {% if no_exact_match %}
-                <span class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-1 text-xs font-black uppercase tracking-widest rounded shadow-[0_0_15px_rgba(147,51,234,0.5)]" id="match-badge">
-                    Top Rated Anomaly
-                </span>
-                {% else %}
-                <span class="bg-gradient-to-r from-cyan-400 to-blue-500 text-black px-4 py-1 text-xs font-black uppercase tracking-widest rounded shadow-[0_0_15px_rgba(6,182,212,0.5)]" id="match-badge">
-                    #1 Predictive Match ({{ recommendations[0].match_percent }}%)
-                </span>
-                {% endif %}
-                <span class="text-white text-xs font-bold uppercase tracking-widest border border-gray-400 bg-black/40 px-2 py-1 rounded drop-shadow-lg" id="match-genres">
-                    {{ recommendations[0].genres }}
-                </span>
-            </div>
+    <header class="absolute top-0 w-full z-50 flex justify-between items-center px-8 lg:px-12 py-6">
+        <div class="flex items-center gap-12">
+            <a href="/" class="flex items-center gap-3 group">
+                <img src="{{ url_for('static', filename='logo.png') }}"
+                    class="h-8 md:h-10 w-auto group-hover:scale-110 transition-transform duration-300 drop-shadow-[0_0_15px_rgba(6,182,212,0.8)]"
+                    alt="AniMatch Logo">
+                <span
+                    class="text-2xl font-black tracking-widest text-cyan-400 drop-shadow-md hidden sm:block cursor-pointer group-hover:text-white transition-colors">ANI<span
+                        class="text-white">MATCH</span></span>
+            </a>
+            <nav class="hidden md:flex gap-8 text-sm font-bold text-gray-300 uppercase tracking-widest">
+                <a href="/" class="hover:text-cyan-400 transition-colors drop-shadow-md">Home</a>
+                <a href="/evaluation" class="hover:text-cyan-400 transition-colors drop-shadow-md">Model Metrics</a>
+            </nav>
+        </div>
+        <div class="flex items-center gap-4">
+            {% if no_exact_match %}
+            <span
+                class="text-red-400 font-bold text-xs uppercase bg-red-500/20 px-4 py-2 rounded-full border border-red-500/30 flex items-center gap-2 drop-shadow-md">
+                <span class="material-symbols-outlined text-sm">warning</span> Prediction Anomaly
+            </span>
+            {% else %}
+            <span
+                class="text-green-400 font-bold text-xs uppercase bg-green-500/20 px-4 py-2 rounded-full border border-green-500/30 flex items-center gap-2 drop-shadow-md">
+                <span class="material-symbols-outlined text-sm">check_circle</span> Prediction Passed
+            </span>
+            {% endif %}
+            <a href="/"
+                class="text-sm font-bold bg-white/10 hover:bg-white/20 px-6 py-2 rounded-full transition-colors flex items-center gap-2 drop-shadow-md">
+                <span class="material-symbols-outlined text-sm">restart_alt</span> New Search
+            </a>
+        </div>
+    </header>
 
-            <!-- Title -->
-            <h1 id="match-title" title="{{ recommendations[0].title }}" class="text-4xl lg:text-7xl font-black uppercase tracking-tighter leading-[1.05] mb-6 text-white line-clamp-3 drop-shadow-[0_10px_10px_rgba(0,0,0,0.8)]">
-                {{ recommendations[0].title }}
-            </h1>
-
-            <div class="flex items-center gap-4 mb-6 drop-shadow-xl">
-                <div class="flex text-cyan-400 drop-shadow-[0_0_5px_rgba(6,182,212,0.8)]">
-                    <span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">star</span>
-                    <span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">star</span>
-                    <span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">star</span>
-                    <span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">star</span>
-                    <span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">star_half</span>
+    <main class="absolute inset-0 z-10 flex items-center justify-center px-12 lg:px-24">
+        <div id="content-container"
+            class="w-full flex gap-12 items-center justify-between fade-transition opacity-100 translate-y-0">
+            <!-- Left Text Content -->
+            <div class="max-w-3xl pt-10">
+                <!-- Badges -->
+                <div class="flex flex-wrap items-center gap-3 mb-6">
+                    {% if no_exact_match %}
+                    <span
+                        class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-1 text-xs font-black uppercase tracking-widest rounded shadow-[0_0_15px_rgba(147,51,234,0.5)]"
+                        id="match-badge">
+                        Top Rated Anomaly
+                    </span>
+                    {% else %}
+                    <span
+                        class="bg-gradient-to-r from-cyan-400 to-blue-500 text-black px-4 py-1 text-xs font-black uppercase tracking-widest rounded shadow-[0_0_15px_rgba(6,182,212,0.5)]"
+                        id="match-badge">
+                        #1 Predictive Match ({{ recommendations[0].match_percent }}%)
+                    </span>
+                    {% endif %}
+                    <span
+                        class="text-white text-xs font-bold uppercase tracking-widest border border-gray-400 bg-black/40 px-2 py-1 rounded drop-shadow-lg"
+                        id="match-genres">
+                        {{ recommendations[0].genres }}
+                    </span>
                 </div>
-                <span id="match-score" class="font-bold text-xl drop-shadow-lg">{{ recommendations[0].score }} <span class="text-gray-400 text-base">/ 10</span></span>
+
+                <!-- Title -->
+                <h1 id="match-title" title="{{ recommendations[0].title }}"
+                    class="text-4xl lg:text-7xl font-black uppercase tracking-tighter leading-[1.05] mb-6 text-white line-clamp-3 drop-shadow-[0_10px_10px_rgba(0,0,0,0.8)]">
+                    {{ recommendations[0].title }}
+                </h1>
+
+                <div class="flex items-center gap-4 mb-6 drop-shadow-xl">
+                    <div class="flex text-cyan-400 drop-shadow-[0_0_5px_rgba(6,182,212,0.8)]">
+                        <span class="material-symbols-outlined text-lg"
+                            style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span class="material-symbols-outlined text-lg"
+                            style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span class="material-symbols-outlined text-lg"
+                            style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span class="material-symbols-outlined text-lg"
+                            style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span class="material-symbols-outlined text-lg"
+                            style="font-variation-settings: 'FILL' 1;">star_half</span>
+                    </div>
+                    <span id="match-score" class="font-bold text-xl drop-shadow-lg">{{ recommendations[0].score }} <span
+                            class="text-gray-400 text-base">/ 10</span></span>
+                </div>
+
+                <p id="match-synopsis"
+                    class="text-gray-200 text-sm lg:text-base leading-relaxed mb-10 max-w-2xl line-clamp-5 drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] font-medium">
+                    {{ recommendations[0].synopsis }}
+                </p>
             </div>
 
-            <p id="match-synopsis" class="text-gray-200 text-sm lg:text-base leading-relaxed mb-10 max-w-2xl line-clamp-5 drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] font-medium">
-                {{ recommendations[0].synopsis }}
-            </p>
+            <!-- Right Crisp Poster -->
+            <div
+                class="hidden lg:block w-[320px] xl:w-[400px] shrink-0 transform rotate-2 hover:rotate-0 transition-transform duration-500 rounded-3xl overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.9)] border-[6px] border-white/10 group mt-10">
+                <img id="match-poster" src="{{ recommendations[0].image_url }}"
+                    class="w-full h-auto max-h-[600px] object-cover" />
+            </div>
+        </div>
+    </main>
+
+    <div class="absolute bottom-12 left-12 lg:left-24 z-50 flex flex-col items-start gap-6">
+        <div class="flex gap-4">
+            <button onclick="prevSlide()"
+                class="w-14 h-14 rounded-full border-2 border-white/20 glass-panel flex items-center justify-center text-white hover:border-cyan-400 hover:text-cyan-400 transition-colors shadow-2xl backdrop-blur-xl">
+                <span class="material-symbols-outlined text-2xl">arrow_back</span>
+            </button>
+            <button onclick="nextSlide()"
+                class="w-14 h-14 rounded-full border-2 border-white/20 glass-panel flex items-center justify-center text-white hover:border-cyan-400 hover:text-cyan-400 transition-colors shadow-2xl backdrop-blur-xl">
+                <span class="material-symbols-outlined text-2xl">arrow_forward</span>
+            </button>
         </div>
 
-        <!-- Right Crisp Poster -->
-        <div class="hidden lg:block w-[320px] xl:w-[400px] shrink-0 transform rotate-2 hover:rotate-0 transition-transform duration-500 rounded-3xl overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.9)] border-[6px] border-white/10 group mt-10">
-            <img id="match-poster" src="{{ recommendations[0].image_url }}" class="w-full h-auto max-h-[600px] object-cover" />
+        <div class="text-left">
+            <div class="text-4xl font-black text-white drop-shadow-2xl" id="slide-counter">01</div>
+            <div class="w-36 h-1 mt-2 rounded overflow-hidden bg-white/20 shadow-xl">
+                <div id="progress-bar"
+                    class="h-full bg-cyan-400 w-[20%] transition-all duration-500 shadow-[0_0_10px_#22d3ee]"></div>
+            </div>
         </div>
     </div>
-</main>
 
-<div class="absolute bottom-12 left-12 lg:left-24 z-50 flex flex-col items-start gap-6">
-    <div class="flex gap-4">
-        <button onclick="prevSlide()" class="w-14 h-14 rounded-full border-2 border-white/20 glass-panel flex items-center justify-center text-white hover:border-cyan-400 hover:text-cyan-400 transition-colors shadow-2xl backdrop-blur-xl">
-            <span class="material-symbols-outlined text-2xl">arrow_back</span>
-        </button>
-        <button onclick="nextSlide()" class="w-14 h-14 rounded-full border-2 border-white/20 glass-panel flex items-center justify-center text-white hover:border-cyan-400 hover:text-cyan-400 transition-colors shadow-2xl backdrop-blur-xl">
-            <span class="material-symbols-outlined text-2xl">arrow_forward</span>
-        </button>
-    </div>
-    
-    <div class="text-left">
-        <div class="text-4xl font-black text-white drop-shadow-2xl" id="slide-counter">01</div>
-        <div class="w-36 h-1 mt-2 rounded overflow-hidden bg-white/20 shadow-xl">
-            <div id="progress-bar" class="h-full bg-cyan-400 w-[20%] transition-all duration-500 shadow-[0_0_10px_#22d3ee]"></div>
-        </div>
-    </div>
-</div>
+    <script>
+        function updateUI(index) {
+            const anime = matches[index];
+            const container = document.getElementById('content-container');
 
-<script>
-    function updateUI(index) {
-        const anime = matches[index];
-        const container = document.getElementById('content-container');
-        
-        container.classList.remove('opacity-100', 'translate-y-0');
-        container.classList.add('opacity-0', 'translate-y-4');
-        
-        setTimeout(() => {
-            document.getElementById('bg-container').style.backgroundImage = `url('${anime.image_url}')`;
-            document.getElementById('match-poster').src = anime.image_url;
-            
-            const titleEl = document.getElementById('match-title');
-            titleEl.textContent = anime.title;
-            titleEl.title = anime.title;
-            
-            document.getElementById('match-score').innerHTML = `${anime.score} <span class="text-gray-400 text-base">/ 10</span>`;
-            document.getElementById('match-synopsis').textContent = anime.synopsis;
-            document.getElementById('match-genres').textContent = anime.genres;
-            
-            const badge = document.getElementById('match-badge');
-            if (isFallback) {
-                badge.className = "bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-1 text-xs font-black uppercase tracking-widest rounded shadow-[0_0_15px_rgba(147,51,234,0.5)]";
-                badge.textContent = "Top Rated Anomaly";
-            } else {
-                badge.className = "bg-gradient-to-r from-cyan-400 to-blue-500 text-black px-4 py-1 text-xs font-black uppercase tracking-widest rounded shadow-[0_0_15px_rgba(6,182,212,0.5)]";
-                badge.textContent = `#${index + 1} Match (${anime.match_percent}%)`;
-            }
-            
-            document.getElementById('slide-counter').textContent = `0${index + 1}`.slice(-2);
-            document.getElementById('progress-bar').style.width = `${((index + 1) / matches.length) * 100}%`;
-            
-            container.classList.remove('opacity-0', 'translate-y-4');
-            container.classList.add('opacity-100', 'translate-y-0');
-            
-        }, 400); 
-    }
+            container.classList.remove('opacity-100', 'translate-y-0');
+            container.classList.add('opacity-0', 'translate-y-4');
 
-    function nextSlide() { currentMatchIndex = (currentMatchIndex + 1) % matches.length; updateUI(currentMatchIndex); }
-    function prevSlide() { currentMatchIndex = (currentMatchIndex - 1 + matches.length) % matches.length; updateUI(currentMatchIndex); }
-    
-    let autoPlay = setInterval(nextSlide, 8000);
-    document.querySelectorAll('.rounded-full').forEach(btn => {
-        btn.addEventListener('click', () => { clearInterval(autoPlay); autoPlay = setInterval(nextSlide, 8000); });
-    });
-</script>
+            setTimeout(() => {
+                document.getElementById('bg-container').style.backgroundImage = `url('${anime.image_url}')`;
+                document.getElementById('match-poster').src = anime.image_url;
+
+                const titleEl = document.getElementById('match-title');
+                titleEl.textContent = anime.title;
+                titleEl.title = anime.title;
+
+                document.getElementById('match-score').innerHTML = `${anime.score} <span class="text-gray-400 text-base">/ 10</span>`;
+                document.getElementById('match-synopsis').textContent = anime.synopsis;
+                document.getElementById('match-genres').textContent = anime.genres;
+
+                const badge = document.getElementById('match-badge');
+                if (isFallback) {
+                    badge.className = "bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-1 text-xs font-black uppercase tracking-widest rounded shadow-[0_0_15px_rgba(147,51,234,0.5)]";
+                    badge.textContent = "Top Rated Anomaly";
+                } else {
+                    badge.className = "bg-gradient-to-r from-cyan-400 to-blue-500 text-black px-4 py-1 text-xs font-black uppercase tracking-widest rounded shadow-[0_0_15px_rgba(6,182,212,0.5)]";
+                    badge.textContent = `#${index + 1} Match (${anime.match_percent}%)`;
+                }
+
+                document.getElementById('slide-counter').textContent = `0${index + 1}`.slice(-2);
+                document.getElementById('progress-bar').style.width = `${((index + 1) / matches.length) * 100}%`;
+
+                container.classList.remove('opacity-0', 'translate-y-4');
+                container.classList.add('opacity-100', 'translate-y-0');
+
+            }, 400);
+        }
+
+        function nextSlide() { currentMatchIndex = (currentMatchIndex + 1) % matches.length; updateUI(currentMatchIndex); }
+        function prevSlide() { currentMatchIndex = (currentMatchIndex - 1 + matches.length) % matches.length; updateUI(currentMatchIndex); }
+
+        let autoPlay = setInterval(nextSlide, 8000);
+        document.querySelectorAll('.rounded-full').forEach(btn => {
+            btn.addEventListener('click', () => { clearInterval(autoPlay); autoPlay = setInterval(nextSlide, 8000); });
+        });
+    </script>
 
 </body>
+
 </html>
